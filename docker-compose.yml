@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  backend:
+    build: .
+    container_name: uptime-backend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - mailhog
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/uptime
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+
+  db:
+    image: postgres:14
+    container_name: uptime-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: uptime
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "8025:8025"   # Interfaz web
+      - "1025:1025"   # SMTP fake server
+
+volumes:
+  postgres-data:
